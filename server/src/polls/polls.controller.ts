@@ -1,22 +1,38 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Logger, Post } from '@nestjs/common';
-
+import {
+  Body,
+  Controller,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { CreatePollDto, JoinPollDto } from './polls.dto';
+import { PollsService } from './polls.service';
 @Controller('polls')
 export class PollsController {
+  constructor(private readonly pollsService: PollsService) {}
   @Post()
-  async create() {
-    Logger.log('Creating a poll');
+  @UsePipes(new ValidationPipe({ transform: true })) // Apply validation pipe to this route
+  async create(@Body() createPollDto: CreatePollDto) {
+    const result = await this.pollsService.createPoll(createPollDto);
+    return result;
   }
-  
+
   @Post('/join')
-  async join() {
-    Logger.log('Joining a poll');
-    // Add your join logic here
+  @UsePipes(new ValidationPipe({ transform: true })) // Apply validation pipe to this route
+  async join(@Body() joinPollDto: JoinPollDto) {
+    const result = await this.pollsService.joinPoll(joinPollDto);
+    return result;
   }
 
   @Post('/rejoin')
+  @UsePipes(new ValidationPipe({ transform: true })) // Apply validation pipe to this route
   async rejoin() {
-    Logger.log('Rejoining a poll');
-    // Add your rejoin logic here
+    const result = await this.pollsService.rejoinPoll({
+      pollID: '12345678',
+      name: 'John Doe',
+      userID: '12345678',
+    });
+    return result;
   }
 }
